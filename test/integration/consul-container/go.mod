@@ -11,7 +11,6 @@ require (
 	github.com/hashicorp/serf v0.10.1
 	github.com/itchyny/gojq v0.12.9
 	github.com/pkg/errors v0.9.1
-	github.com/rogpeppe/go-internal v1.3.0
 	github.com/stretchr/testify v1.8.0
 	github.com/teris-io/shortid v0.0.0-20220617161101-71ec9f2aa569
 	github.com/testcontainers/testcontainers-go v0.13.0
@@ -68,7 +67,7 @@ require (
 	github.com/gorilla/mux v1.7.3 // indirect
 	github.com/grpc-ecosystem/go-grpc-middleware v1.0.1-0.20190118093823-f849b5445de4 // indirect
 	github.com/hashicorp/consul-awsauth v0.0.0-20220713182709-05ac1c5c2706 // indirect
-	github.com/hashicorp/consul-net-rpc v0.0.0-20220307172752-3602954411b4 // indirect
+	github.com/hashicorp/consul-net-rpc v0.0.0-20221205195236-156cfab66a69 // indirect
 	github.com/hashicorp/consul/proto-public v0.2.1 // indirect
 	github.com/hashicorp/errwrap v1.1.0 // indirect
 	github.com/hashicorp/go-bexpr v0.1.2 // indirect
