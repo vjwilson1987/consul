@@ -1008,7 +1008,7 @@ func (l *State) updateSyncState() error {
 	remoteServices := make(map[structs.ServiceID]*structs.NodeService)
 	var svcNode *structs.Node
 
-	if err := l.Delegate.RPC("Catalog.NodeServiceList", &req, &out1); err == nil {
+	if err := l.Delegate.RPC(context.Background(), "Catalog.NodeServiceList", &req, &out1); err == nil {
 		for _, svc := range out1.NodeServices.Services {
 			remoteServices[svc.CompoundServiceID()] = svc
 		}
@@ -1017,7 +1017,7 @@ func (l *State) updateSyncState() error {
 	} else if errMsg := err.Error(); strings.Contains(errMsg, "rpc: can't find method") {
 		// fallback to the old RPC
 		var out1 structs.IndexedNodeServices
-		if err := l.Delegate.RPC("Catalog.NodeServices", &req, &out1); err != nil {
+		if err := l.Delegate.RPC(context.Background(), "Catalog.NodeServices", &req, &out1); err != nil {
 			return err
 		}
 
@@ -1033,7 +1033,7 @@ func (l *State) updateSyncState() error {
 	}
 
 	var out2 structs.IndexedHealthChecks
-	if err := l.Delegate.RPC("Health.NodeChecks", &req, &out2); err != nil {
+	if err := l.Delegate.RPC(context.Background(), "Health.NodeChecks", &req, &out2); err != nil {
 		return err
 	}
 
@@ -1280,7 +1280,7 @@ func (l *State) deleteService(key structs.ServiceID) error {
 		WriteRequest:   structs.WriteRequest{Token: st},
 	}
 	var out struct{}
-	err := l.Delegate.RPC("Catalog.Deregister", &req, &out)
+	err := l.Delegate.RPC(context.Background(), "Catalog.Deregister", &req, &out)
 	switch {
 	case err == nil || strings.Contains(err.Error(), "Unknown service"):
 		delete(l.services, key)
@@ -1329,7 +1329,7 @@ func (l *State) deleteCheck(key structs.CheckID) error {
 		WriteRequest:   structs.WriteRequest{Token: ct},
 	}
 	var out struct{}
-	err := l.Delegate.RPC("Catalog.Deregister", &req, &out)
+	err := l.Delegate.RPC(context.Background(), "Catalog.Deregister", &req, &out)
 	switch {
 	case err == nil || strings.Contains(err.Error(), "Unknown check"):
 		l.pruneCheck(key)
@@ -1407,7 +1407,7 @@ func (l *State) syncService(key structs.ServiceID) error {
 	}
 
 	var out struct{}
-	err := l.Delegate.RPC("Catalog.Register", &req, &out)
+	err := l.Delegate.RPC(context.Background(), "Catalog.Register", &req, &out)
 	switch {
 	case err == nil:
 		l.services[key].InSync = true
@@ -1469,7 +1469,7 @@ func (l *State) syncCheck(key structs.CheckID) error {
 	}
 
 	var out struct{}
-	err := l.Delegate.RPC("Catalog.Register", &req, &out)
+	err := l.Delegate.RPC(context.Background(), "Catalog.Register", &req, &out)
 	switch {
 	case err == nil:
 		l.checks[key].InSync = true
@@ -1510,7 +1510,7 @@ func (l *State) syncNodeInfo() error {
 		WriteRequest:    structs.WriteRequest{Token: at},
 	}
 	var out struct{}
-	err := l.Delegate.RPC("Catalog.Register", &req, &out)
+	err := l.Delegate.RPC(context.Background(), "Catalog.Register", &req, &out)
 	switch {
 	case err == nil:
 		l.nodeInfoInSync = true

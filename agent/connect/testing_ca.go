@@ -439,7 +439,7 @@ func testCAConfigSet(t testing.T, a TestAgentRPC,
 	}
 	var reply interface{}
 
-	err := a.RPC("ConnectCA.ConfigurationSet", args, &reply)
+	err := a.RPC(context.Background(), "ConnectCA.ConfigurationSet", args, &reply)
 	if err != nil {
 		t.Fatalf("failed to set test CA config: %s", err)
 	}

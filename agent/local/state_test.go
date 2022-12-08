@@ -68,7 +68,7 @@ func TestAgentAntiEntropy_Services(t *testing.T) {
 	a.State.AddServiceWithChecks(srv1, nil, "")
 	assert.True(t, a.State.ServiceExists(structs.ServiceID{ID: srv1.ID}))
 	args.Service = srv1
-	if err := a.RPC("Catalog.Register", args, &out); err != nil {
+	if err := a.RPC(context.Background(), "Catalog.Register", args, &out); err != nil {
 		t.Fatalf("err: %v", err)
 	}
 
@@ -90,7 +90,7 @@ func TestAgentAntiEntropy_Services(t *testing.T) {
 	*srv2_mod = *srv2
 	srv2_mod.Port = 9000
 	args.Service = srv2_mod
-	if err := a.RPC("Catalog.Register", args, &out); err != nil {
+	if err := a.RPC(context.Background(), "Catalog.Register", args, &out); err != nil {
 		t.Fatalf("err: %v", err)
 	}
 
@@ -121,7 +121,7 @@ func TestAgentAntiEntropy_Services(t *testing.T) {
 		EnterpriseMeta: *structs.DefaultEnterpriseMetaInDefaultPartition(),
 	}
 	args.Service = srv4
-	if err := a.RPC("Catalog.Register", args, &out); err != nil {
+	if err := a.RPC(context.Background(), "Catalog.Register", args, &out); err != nil {
 		t.Fatalf("err: %v", err)
 	}
 
@@ -144,7 +144,7 @@ func TestAgentAntiEntropy_Services(t *testing.T) {
 	*srv5_mod = *srv5
 	srv5_mod.Address = "127.0.0.1"
 	args.Service = srv5_mod
-	if err := a.RPC("Catalog.Register", args, &out); err != nil {
+	if err := a.RPC(context.Background(), "Catalog.Register", args, &out); err != nil {
 		t.Fatalf("err: %v", err)
 	}
 
@@ -175,7 +175,7 @@ func TestAgentAntiEntropy_Services(t *testing.T) {
 		Node:       a.Config.NodeName,
 	}
 
-	if err := a.RPC("Catalog.NodeServices", &req, &services); err != nil {
+	if err := a.RPC(context.Background(), "Catalog.NodeServices", &req, &services); err != nil {
 		t.Fatalf("err: %v", err)
 	}
 
@@ -225,7 +225,7 @@ func TestAgentAntiEntropy_Services(t *testing.T) {
 		t.Fatalf("err: %v", err)
 	}
 
-	if err := a.RPC("Catalog.NodeServices", &req, &services); err != nil {
+	if err := a.RPC(context.Background(), "Catalog.NodeServices", &req, &services); err != nil {
 		t.Fatalf("err: %v", err)
 	}
 
@@ -292,7 +292,7 @@ func TestAgentAntiEntropy_Services_ConnectProxy(t *testing.T) {
 		EnterpriseMeta: *structs.DefaultEnterpriseMetaInDefaultPartition(),
 	}
 	a.State.AddServiceWithChecks(srv1, nil, "")
-	require.NoError(t, a.RPC("Catalog.Register", &structs.RegisterRequest{
+	require.NoError(t, a.RPC(context.Background(), "Catalog.Register", &structs.RegisterRequest{
 		Datacenter: "dc1",
 		Node:       a.Config.NodeName,
 		Address:    "127.0.0.1",
@@ -316,7 +316,7 @@ func TestAgentAntiEntropy_Services_ConnectProxy(t *testing.T) {
 
 	srv2_mod := clone(srv2)
 	srv2_mod.Port = 9000
-	require.NoError(t, a.RPC("Catalog.Register", &structs.RegisterRequest{
+	require.NoError(t, a.RPC(context.Background(), "Catalog.Register", &structs.RegisterRequest{
 		Datacenter: "dc1",
 		Node:       a.Config.NodeName,
 		Address:    "127.0.0.1",
@@ -351,7 +351,7 @@ func TestAgentAntiEntropy_Services_ConnectProxy(t *testing.T) {
 		},
 		EnterpriseMeta: *structs.DefaultEnterpriseMetaInDefaultPartition(),
 	}
-	require.NoError(t, a.RPC("Catalog.Register", &structs.RegisterRequest{
+	require.NoError(t, a.RPC(context.Background(), "Catalog.Register", &structs.RegisterRequest{
 		Datacenter: "dc1",
 		Node:       a.Config.NodeName,
 		Address:    "127.0.0.1",
@@ -383,7 +383,7 @@ func TestAgentAntiEntropy_Services_ConnectProxy(t *testing.T) {
 		Datacenter: "dc1",
 		Node:       a.Config.NodeName,
 	}
-	require.NoError(t, a.RPC("Catalog.NodeServices", &req, &services))
+	require.NoError(t, a.RPC(context.Background(), "Catalog.NodeServices", &req, &services))
 
 	// We should have 5 services (consul included)
 	require.Len(t, services.NodeServices.Services, 5)
@@ -455,7 +455,7 @@ func TestAgentAntiEntropy_Services_ConnectProxy(t *testing.T) {
 	// Remove one of the services
 	a.State.RemoveService(structs.NewServiceID("cache-proxy", nil))
 	require.NoError(t, a.State.SyncFull())
-	require.NoError(t, a.RPC("Catalog.NodeServices", &req, &services))
+	require.NoError(t, a.RPC(context.Background(), "Catalog.NodeServices", &req, &services))
 
 	// We should have 4 services (consul included)
 	require.Len(t, services.NodeServices.Services, 4)
@@ -633,7 +633,7 @@ func TestAgentAntiEntropy_EnableTagOverride(t *testing.T) {
 		},
 		EnterpriseMeta: *structs.DefaultEnterpriseMetaInDefaultPartition(),
 	}
-	if err := a.RPC("Catalog.Register", args, &out); err != nil {
+	if err := a.RPC(context.Background(), "Catalog.Register", args, &out); err != nil {
 		t.Fatalf("err: %v", err)
 	}
 
@@ -649,7 +649,7 @@ func TestAgentAntiEntropy_EnableTagOverride(t *testing.T) {
 		},
 		EnterpriseMeta: *structs.DefaultEnterpriseMetaInDefaultPartition(),
 	}
-	if err := a.RPC("Catalog.Register", args, &out); err != nil {
+	if err := a.RPC(context.Background(), "Catalog.Register", args, &out); err != nil {
 		t.Fatalf("err: %v", err)
 	}
 
@@ -665,7 +665,7 @@ func TestAgentAntiEntropy_EnableTagOverride(t *testing.T) {
 	var services structs.IndexedNodeServices
 
 	retry.Run(t, func(r *retry.R) {
-		if err := a.RPC("Catalog.NodeServices", &req, &services); err != nil {
+		if err := a.RPC(context.Background(), "Catalog.NodeServices", &req, &services); err != nil {
 			r.Fatalf("err: %v", err)
 		}
 
@@ -744,7 +744,7 @@ func TestAgentAntiEntropy_Services_WithChecks(t *testing.T) {
 			Node:       a.Config.NodeName,
 		}
 		var services structs.IndexedNodeServices
-		if err := a.RPC("Catalog.NodeServices", &svcReq, &services); err != nil {
+		if err := a.RPC(context.Background(), "Catalog.NodeServices", &svcReq, &services); err != nil {
 			t.Fatalf("err: %v", err)
 		}
 		if len(services.NodeServices.Services) != 2 {
@@ -757,7 +757,7 @@ func TestAgentAntiEntropy_Services_WithChecks(t *testing.T) {
 			ServiceName: "mysql",
 		}
 		var checks structs.IndexedHealthChecks
-		if err := a.RPC("Health.ServiceChecks", &chkReq, &checks); err != nil {
+		if err := a.RPC(context.Background(), "Health.ServiceChecks", &chkReq, &checks); err != nil {
 			t.Fatalf("err: %v", err)
 		}
 		if len(checks.HealthChecks) != 1 {
@@ -803,7 +803,7 @@ func TestAgentAntiEntropy_Services_WithChecks(t *testing.T) {
 			Node:       a.Config.NodeName,
 		}
 		var services structs.IndexedNodeServices
-		if err := a.RPC("Catalog.NodeServices", &svcReq, &services); err != nil {
+		if err := a.RPC(context.Background(), "Catalog.NodeServices", &svcReq, &services); err != nil {
 			t.Fatalf("err: %v", err)
 		}
 		if len(services.NodeServices.Services) != 3 {
@@ -816,7 +816,7 @@ func TestAgentAntiEntropy_Services_WithChecks(t *testing.T) {
 			ServiceName: "redis",
 		}
 		var checks structs.IndexedHealthChecks
-		if err := a.RPC("Health.ServiceChecks", &chkReq, &checks); err != nil {
+		if err := a.RPC(context.Background(), "Health.ServiceChecks", &chkReq, &checks); err != nil {
 			t.Fatalf("err: %v", err)
 		}
 		if len(checks.HealthChecks) != 2 {
@@ -904,7 +904,7 @@ func TestAgentAntiEntropy_Services_ACLDeny(t *testing.T) {
 			},
 		}
 		var services structs.IndexedNodeServices
-		if err := a.RPC("Catalog.NodeServices", &req, &services); err != nil {
+		if err := a.RPC(context.Background(), "Catalog.NodeServices", &req, &services); err != nil {
 			t.Fatalf("err: %v", err)
 		}
 
@@ -949,7 +949,7 @@ func TestAgentAntiEntropy_Services_ACLDeny(t *testing.T) {
 			},
 		}
 		var services structs.IndexedNodeServices
-		if err := a.RPC("Catalog.NodeServices", &req, &services); err != nil {
+		if err := a.RPC(context.Background(), "Catalog.NodeServices", &req, &services); err != nil {
 			t.Fatalf("err: %v", err)
 		}
 
@@ -999,7 +999,7 @@ func createToken(t *testing.T, rpc RPC, policyRules string) string {
 		},
 		WriteRequest: structs.WriteRequest{Token: "root"},
 	}
-	err := rpc.RPC("ACL.PolicySet", &reqPolicy, &structs.ACLPolicy{})
+	err := rpc.RPC(context.Background(), "ACL.PolicySet", &reqPolicy, &structs.ACLPolicy{})
 	require.NoError(t, err)
 
 	token, err := uuid.GenerateUUID()
@@ -1013,7 +1013,7 @@ func createToken(t *testing.T, rpc RPC, policyRules string) string {
 		},
 		WriteRequest: structs.WriteRequest{Token: "root"},
 	}
-	err = rpc.RPC("ACL.TokenSet", &reqToken, &structs.ACLToken{})
+	err = rpc.RPC(context.Background(), "ACL.TokenSet", &reqToken, &structs.ACLToken{})
 	require.NoError(t, err)
 	return token
 }
@@ -1046,7 +1046,7 @@ func TestAgentAntiEntropy_Checks(t *testing.T) {
 	}
 	a.State.AddCheck(chk1, "")
 	args.Check = chk1
-	if err := a.RPC("Catalog.Register", args, &out); err != nil {
+	if err := a.RPC(context.Background(), "Catalog.Register", args, &out); err != nil {
 		t.Fatalf("err: %v", err)
 	}
 
@@ -1064,7 +1064,7 @@ func TestAgentAntiEntropy_Checks(t *testing.T) {
 	*chk2_mod = *chk2
 	chk2_mod.Status = api.HealthCritical
 	args.Check = chk2_mod
-	if err := a.RPC("Catalog.Register", args, &out); err != nil {
+	if err := a.RPC(context.Background(), "Catalog.Register", args, &out); err != nil {
 		t.Fatalf("err: %v", err)
 	}
 
@@ -1087,7 +1087,7 @@ func TestAgentAntiEntropy_Checks(t *testing.T) {
 		EnterpriseMeta: *structs.DefaultEnterpriseMetaInDefaultPartition(),
 	}
 	args.Check = chk4
-	if err := a.RPC("Catalog.Register", args, &out); err != nil {
+	if err := a.RPC(context.Background(), "Catalog.Register", args, &out); err != nil {
 		t.Fatalf("err: %v", err)
 	}
 
@@ -1117,7 +1117,7 @@ func TestAgentAntiEntropy_Checks(t *testing.T) {
 	retry.Run(t, func(r *retry.R) {
 
 		// Verify that we are in sync
-		if err := a.RPC("Health.NodeChecks", &req, &checks); err != nil {
+		if err := a.RPC(context.Background(), "Health.NodeChecks", &req, &checks); err != nil {
 			r.Fatalf("err: %v", err)
 		}
 
@@ -1159,7 +1159,7 @@ func TestAgentAntiEntropy_Checks(t *testing.T) {
 				Node:       a.Config.NodeName,
 			}
 			var services structs.IndexedNodeServices
-			if err := a.RPC("Catalog.NodeServices", &req, &services); err != nil {
+			if err := a.RPC(context.Background(), "Catalog.NodeServices", &req, &services); err != nil {
 				r.Fatalf("err: %v", err)
 			}
 
@@ -1182,7 +1182,7 @@ func TestAgentAntiEntropy_Checks(t *testing.T) {
 		}
 
 		// Verify that we are in sync
-		if err := a.RPC("Health.NodeChecks", &req, &checks); err != nil {
+		if err := a.RPC(context.Background(), "Health.NodeChecks", &req, &checks); err != nil {
 			r.Fatalf("err: %v", err)
 		}
 
@@ -1243,7 +1243,7 @@ func TestAgentAntiEntropy_RemovingServiceAndCheck(t *testing.T) {
 		Port:    8080,
 	}
 	args.Service = srv
-	if err := a.RPC("Catalog.Register", args, &out); err != nil {
+	if err := a.RPC(context.Background(), "Catalog.Register", args, &out); err != nil {
 		t.Fatalf("err: %v", err)
 	}
 
@@ -1258,7 +1258,7 @@ func TestAgentAntiEntropy_RemovingServiceAndCheck(t *testing.T) {
 	}
 
 	args.Check = chk
-	if err := a.RPC("Catalog.Register", args, &out); err != nil {
+	if err := a.RPC(context.Background(), "Catalog.Register", args, &out); err != nil {
 		t.Fatalf("err: %v", err)
 	}
 
@@ -1272,7 +1272,7 @@ func TestAgentAntiEntropy_RemovingServiceAndCheck(t *testing.T) {
 		Node:       a.Config.NodeName,
 	}
 
-	if err := a.RPC("Catalog.NodeServices", &req, &services); err != nil {
+	if err := a.RPC(context.Background(), "Catalog.NodeServices", &req, &services); err != nil {
 		t.Fatalf("err: %v", err)
 	}
 
@@ -1283,7 +1283,7 @@ func TestAgentAntiEntropy_RemovingServiceAndCheck(t *testing.T) {
 
 	var checks structs.IndexedHealthChecks
 	// Verify that we are in sync
-	if err := a.RPC("Health.NodeChecks", &req, &checks); err != nil {
+	if err := a.RPC(context.Background(), "Health.NodeChecks", &req, &checks); err != nil {
 		t.Fatalf("err: %v", err)
 	}
 
@@ -1361,7 +1361,7 @@ func TestAgentAntiEntropy_Checks_ACLDeny(t *testing.T) {
 			},
 		}
 		var services structs.IndexedNodeServices
-		if err := a.RPC("Catalog.NodeServices", &req, &services); err != nil {
+		if err := a.RPC(context.Background(), "Catalog.NodeServices", &req, &services); err != nil {
 			t.Fatalf("err: %v", err)
 		}
 
@@ -1429,7 +1429,7 @@ func TestAgentAntiEntropy_Checks_ACLDeny(t *testing.T) {
 		},
 	}
 	var checks structs.IndexedHealthChecks
-	if err := a.RPC("Health.NodeChecks", &req, &checks); err != nil {
+	if err := a.RPC(context.Background(), "Health.NodeChecks", &req, &checks); err != nil {
 		t.Fatalf("err: %v", err)
 	}
 
@@ -1473,7 +1473,7 @@ func TestAgentAntiEntropy_Checks_ACLDeny(t *testing.T) {
 			},
 		}
 		var checks structs.IndexedHealthChecks
-		if err := a.RPC("Health.NodeChecks", &req, &checks); err != nil {
+		if err := a.RPC(context.Background(), "Health.NodeChecks", &req, &checks); err != nil {
 			t.Fatalf("err: %v", err)
 		}
 
@@ -1599,7 +1599,7 @@ func TestAgentAntiEntropy_Check_DeferSync(t *testing.T) {
 	}
 	var checks structs.IndexedHealthChecks
 	retry.Run(t, func(r *retry.R) {
-		if err := a.RPC("Health.NodeChecks", &req, &checks); err != nil {
+		if err := a.RPC(context.Background(), "Health.NodeChecks", &req, &checks); err != nil {
 			r.Fatalf("err: %v", err)
 		}
 		if got, want := len(checks.HealthChecks), 2; got != want {
@@ -1653,7 +1653,7 @@ func TestAgentAntiEntropy_Check_DeferSync(t *testing.T) {
 	// synced.
 	timer = &retry.Timer{Timeout: 6 * time.Second, Wait: 100 * time.Millisecond}
 	retry.RunWith(timer, t, func(r *retry.R) {
-		if err := a.RPC("Health.NodeChecks", &req, &checks); err != nil {
+		if err := a.RPC(context.Background(), "Health.NodeChecks", &req, &checks); err != nil {
 			r.Fatalf("err: %v", err)
 		}
 
@@ -1680,12 +1680,12 @@ func TestAgentAntiEntropy_Check_DeferSync(t *testing.T) {
 		WriteRequest:    structs.WriteRequest{},
 	}
 	var out struct{}
-	if err := a.RPC("Catalog.Register", &reg, &out); err != nil {
+	if err := a.RPC(context.Background(), "Catalog.Register", &reg, &out); err != nil {
 		t.Fatalf("err: %s", err)
 	}
 
 	// Verify that the output is out of sync.
-	if err := a.RPC("Health.NodeChecks", &req, &checks); err != nil {
+	if err := a.RPC(context.Background(), "Health.NodeChecks", &req, &checks); err != nil {
 		t.Fatalf("err: %v", err)
 	}
 	for _, chk := range checks.HealthChecks {
@@ -1702,7 +1702,7 @@ func TestAgentAntiEntropy_Check_DeferSync(t *testing.T) {
 	}
 
 	// Verify that the output was synced back to the agent's value.
-	if err := a.RPC("Health.NodeChecks", &req, &checks); err != nil {
+	if err := a.RPC(context.Background(), "Health.NodeChecks", &req, &checks); err != nil {
 		t.Fatalf("err: %v", err)
 	}
 	for _, chk := range checks.HealthChecks {
@@ -1715,12 +1715,12 @@ func TestAgentAntiEntropy_Check_DeferSync(t *testing.T) {
 	}
 
 	// Reset the catalog again.
-	if err := a.RPC("Catalog.Register", &reg, &out); err != nil {
+	if err := a.RPC(context.Background(), "Catalog.Register", &reg, &out); err != nil {
 		t.Fatalf("err: %s", err)
 	}
 
 	// Verify that the output is out of sync.
-	if err := a.RPC("Health.NodeChecks", &req, &checks); err != nil {
+	if err := a.RPC(context.Background(), "Health.NodeChecks", &req, &checks); err != nil {
 		t.Fatalf("err: %v", err)
 	}
 	for _, chk := range checks.HealthChecks {
@@ -1741,7 +1741,7 @@ func TestAgentAntiEntropy_Check_DeferSync(t *testing.T) {
 
 	// Verify that the output is still out of sync since there's a deferred
 	// update pending.
-	if err := a.RPC("Health.NodeChecks", &req, &checks); err != nil {
+	if err := a.RPC(context.Background(), "Health.NodeChecks", &req, &checks); err != nil {
 		t.Fatalf("err: %v", err)
 	}
 	for _, chk := range checks.HealthChecks {
@@ -1754,7 +1754,7 @@ func TestAgentAntiEntropy_Check_DeferSync(t *testing.T) {
 	}
 	// Wait for the deferred update.
 	retry.Run(t, func(r *retry.R) {
-		if err := a.RPC("Health.NodeChecks", &req, &checks); err != nil {
+		if err := a.RPC(context.Background(), "Health.NodeChecks", &req, &checks); err != nil {
 			r.Fatal(err)
 		}
 
@@ -1799,7 +1799,7 @@ func TestAgentAntiEntropy_NodeInfo(t *testing.T) {
 		Address:    "127.0.0.1",
 	}
 	var out struct{}
-	if err := a.RPC("Catalog.Register", args, &out); err != nil {
+	if err := a.RPC(context.Background(), "Catalog.Register", args, &out); err != nil {
 		t.Fatalf("err: %v", err)
 	}
 
@@ -1812,7 +1812,7 @@ func TestAgentAntiEntropy_NodeInfo(t *testing.T) {
 		Node:       a.Config.NodeName,
 	}
 	var services structs.IndexedNodeServices
-	if err := a.RPC("Catalog.NodeServices", &req, &services); err != nil {
+	if err := a.RPC(context.Background(), "Catalog.NodeServices", &req, &services); err != nil {
 		t.Fatalf("err: %v", err)
 	}
 
@@ -1825,7 +1825,7 @@ func TestAgentAntiEntropy_NodeInfo(t *testing.T) {
 	assert.Equal(t, unNilMap(a.Config.NodeMeta), meta)
 
 	// Blow away the catalog version of the node info
-	if err := a.RPC("Catalog.Register", args, &out); err != nil {
+	if err := a.RPC(context.Background(), "Catalog.Register", args, &out); err != nil {
 		t.Fatalf("err: %v", err)
 	}
 
@@ -1834,7 +1834,7 @@ func TestAgentAntiEntropy_NodeInfo(t *testing.T) {
 	}
 
 	// Wait for the sync - this should have been a sync of just the node info
-	if err := a.RPC("Catalog.NodeServices", &req, &services); err != nil {
+	if err := a.RPC(context.Background(), "Catalog.NodeServices", &req, &services); err != nil {
 		t.Fatalf("err: %v", err)
 	}
 
@@ -2144,7 +2144,7 @@ func TestAgent_sendCoordinate(t *testing.T) {
 	}
 	var reply structs.IndexedCoordinates
 	retry.Run(t, func(r *retry.R) {
-		if err := a.RPC("Coordinate.ListNodes", &req, &reply); err != nil {
+		if err := a.RPC(context.Background(), "Coordinate.ListNodes", &req, &reply); err != nil {
 			r.Fatalf("err: %s", err)
 		}
 		if len(reply.Coordinates) != 1 {
@@ -2417,7 +2417,7 @@ type callRPC struct {
 	reply  interface{}
 }
 
-func (f *fakeRPC) RPC(method string, args interface{}, reply interface{}) error {
+func (f *fakeRPC) RPC(ctx context.Context, method string, args interface{}, reply interface{}) error {
 	f.calls = append(f.calls, callRPC{method: method, args: args, reply: reply})
 	return nil
 }

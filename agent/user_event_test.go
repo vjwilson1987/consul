@@ -246,7 +246,7 @@ func createToken(t *testing.T, rpc RPC, policyRules string) string {
 		},
 		WriteRequest: structs.WriteRequest{Token: "root"},
 	}
-	err := rpc.RPC("ACL.PolicySet", &reqPolicy, &structs.ACLPolicy{})
+	err := rpc.RPC(context.Background(), "ACL.PolicySet", &reqPolicy, &structs.ACLPolicy{})
 	require.NoError(t, err)
 
 	token, err := uuid.GenerateUUID()
@@ -260,7 +260,7 @@ func createToken(t *testing.T, rpc RPC, policyRules string) string {
 		},
 		WriteRequest: structs.WriteRequest{Token: "root"},
 	}
-	err = rpc.RPC("ACL.TokenSet", &reqToken, &structs.ACLToken{})
+	err = rpc.RPC(context.Background(), "ACL.TokenSet", &reqToken, &structs.ACLToken{})
 	require.NoError(t, err)
 	return token
 }
