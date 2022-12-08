@@ -1,6 +1,7 @@
 package agent
 
 import (
+	"context"
 	"strings"
 	"testing"
 
@@ -231,7 +232,7 @@ func TestUserEventToken(t *testing.T) {
 }
 
 type RPC interface {
-	RPC(method string, args interface{}, reply interface{}) error
+	RPC(ctx context.Context, method string, args interface{}, reply interface{}) error
 }
 
 func createToken(t *testing.T, rpc RPC, policyRules string) string {

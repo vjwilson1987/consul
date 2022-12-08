@@ -23,7 +23,7 @@ type Client struct {
 }
 
 type NetRPC interface {
-	RPC(method string, args interface{}, reply interface{}) error
+	RPC(ctx context.Context, method string, args interface{}, reply interface{}) error
 }
 
 type CacheGetter interface {

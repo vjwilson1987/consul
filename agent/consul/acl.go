@@ -1,6 +1,7 @@
 package consul
 
 import (
+	"context"
 	"fmt"
 	"sort"
 	"sync"
@@ -134,7 +135,7 @@ type ACLResolverBackend interface {
 	ResolveRoleFromID(roleID string) (bool, *structs.ACLRole, error)
 	IsServerManagementToken(token string) bool
 	// TODO: separate methods for each RPC call (there are 4)
-	RPC(method string, args interface{}, reply interface{}) error
+	RPC(ctx context.Context, method string, args interface{}, reply interface{}) error
 	EnterpriseACLResolverDelegate
 }
 

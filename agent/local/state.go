@@ -1,6 +1,7 @@
 package local
 
 import (
+	"context"
 	"fmt"
 	"reflect"
 	"strconv"
@@ -149,7 +150,7 @@ func (c *CheckState) CriticalFor() time.Duration {
 }
 
 type rpc interface {
-	RPC(method string, args interface{}, reply interface{}) error
+	RPC(ctx context.Context, method string, args interface{}, reply interface{}) error
 	ResolveTokenAndDefaultMeta(token string, entMeta *acl.EnterpriseMeta, authzContext *acl.AuthorizerContext) (resolver.Result, error)
 }
 

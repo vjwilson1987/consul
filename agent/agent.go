@@ -188,7 +188,7 @@ type delegate interface {
 	// default partition and namespace from the token.
 	ResolveTokenAndDefaultMeta(token string, entMeta *acl.EnterpriseMeta, authzContext *acl.AuthorizerContext) (resolver.Result, error)
 
-	RPC(method string, args interface{}, reply interface{}) error
+	RPC(ctx context.Context, method string, args interface{}, reply interface{}) error
 
 	// Preferred way to internally invoke RPCs tied in an incoming HTTP request.
 	// For server agents, this call may be subject to rate limiting based on sourceAddr.
