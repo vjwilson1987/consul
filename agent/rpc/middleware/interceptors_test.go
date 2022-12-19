@@ -243,6 +243,7 @@ var testCases = []testCase{
 // is expected to perform.
 func TestRequestRecorder(t *testing.T) {
 
+	//for _, tc := range testCases[0:1] {
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
 
@@ -260,7 +261,7 @@ func TestRequestRecorder(t *testing.T) {
 			o := store.get(key)
 
 			require.Equal(t, o.key, metricRPCRequest)
-			require.LessOrEqual(t, o.elapsed, float32(start.Sub(time.Now()).Milliseconds()))
+			require.LessOrEqual(t, o.elapsed, float32(start.Sub(time.Now()).Microseconds()/1000))
 			require.Equal(t, o.labels, tc.expectedLabels)
 
 		})
