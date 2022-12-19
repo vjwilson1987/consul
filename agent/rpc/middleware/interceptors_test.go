@@ -243,7 +243,6 @@ var testCases = []testCase{
 // is expected to perform.
 func TestRequestRecorder(t *testing.T) {
 
-	//for _, tc := range testCases[0:1] {
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
 
@@ -261,9 +260,44 @@ func TestRequestRecorder(t *testing.T) {
 			o := store.get(key)
 
 			require.Equal(t, o.key, metricRPCRequest)
-			require.LessOrEqual(t, o.elapsed, float32(start.Sub(time.Now()).Microseconds()/1000))
+			require.LessOrEqual(t, o.elapsed, float32(time.Now().Sub(start).Microseconds())/1000)
 			require.Equal(t, o.labels, tc.expectedLabels)
 
 		})
 	}
 }
+
+// func TestBasics(t *testing.T) {
+
+// 	// elapsed := time.Since(start).Microseconds()
+// 	// elapsedMs := float32(elapsed) / 1000
+
+// 	startTime := time.Now()
+// 	time.Sleep(8 * time.Millisecond)
+// 	elapsedTime := time.Since(startTime)
+// 	elapsedMicros := elapsedTime.Microseconds()
+// 	elapsedMillis := elapsedTime.Milliseconds()
+// 	elapsedMillisFloat32 := float32(elapsedMicros) / 1000
+
+// 	// later on
+// 	assertTime := time.Now()
+// 	assertMillisFloat32 := float32(startTime.Sub(assertTime).Milliseconds())
+
+// 	//elapsed := time.Since(start).Microseconds()
+// 	//elapsedMs := float32(elapsed) / 1000
+
+// 	assertMillisFloat32FromMicros := float32(startTime.Sub(assertTime).Microseconds()) / 1000
+
+// 	//testfloat32(start.Sub(time.Now()).Microseconds()/1000))
+
+// 	fmt.Println("elapsedTime", elapsedTime)
+// 	fmt.Println("elapsedMicros", elapsedMicros)
+// 	fmt.Println("elapsedMillis", elapsedMillis)
+// 	fmt.Println("elapsedMillisComputed", elapsedMillisFloat32)
+
+// 	fmt.Println("assertMillisFloat32", assertMillisFloat32)
+// 	fmt.Println("assertMillisFloat32FromMicros", assertMillisFloat32FromMicros)
+
+// 	t.Fail()
+// 	//require.LessOrEqual(t, 4, 3)
+// }
