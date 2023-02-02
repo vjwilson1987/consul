@@ -309,6 +309,7 @@ type ProxyConfigEntry struct {
 	Partition        string                  `json:",omitempty"`
 	Namespace        string                  `json:",omitempty"`
 	Mode             ProxyMode               `json:",omitempty"`
+	PermissiveMTLS   bool                    `json:",omitempty" alias:"permissive_mtls"`
 	TransparentProxy *TransparentProxyConfig `json:",omitempty" alias:"transparent_proxy"`
 	Config           map[string]interface{}  `json:",omitempty"`
 	MeshGateway      MeshGatewayConfig       `json:",omitempty" alias:"mesh_gateway"`

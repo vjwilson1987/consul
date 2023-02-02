@@ -135,6 +135,7 @@ func MergeServiceConfig(defaults *structs.ServiceConfigResponse, service *struct
 		ns.Proxy.EnvoyExtensions = nsExtensions
 	}
 
+	ns.Proxy.PermissiveMTLS = defaults.PermissiveMTLS
 	if ns.Proxy.MeshGateway.Mode == structs.MeshGatewayModeDefault {
 		ns.Proxy.MeshGateway.Mode = defaults.MeshGateway.Mode
 	}

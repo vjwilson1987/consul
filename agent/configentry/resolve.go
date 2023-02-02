@@ -43,6 +43,7 @@ func ComputeResolvedServiceConfig(
 
 		thisReply.ProxyConfig = mapCopy.(map[string]interface{})
 		thisReply.Mode = proxyConf.Mode
+		thisReply.PermissiveMTLS = proxyConf.PermissiveMTLS
 		thisReply.TransparentProxy = proxyConf.TransparentProxy
 		thisReply.MeshGateway = proxyConf.MeshGateway
 		thisReply.Expose = proxyConf.Expose
@@ -79,6 +80,7 @@ func ComputeResolvedServiceConfig(
 			thisReply.MeshGateway.Mode = serviceConf.MeshGateway.Mode
 			wildcardUpstreamDefaults["mesh_gateway"] = serviceConf.MeshGateway
 		}
+		// PermissiveMTLS not supported in service-defaults?
 		if serviceConf.TransparentProxy.OutboundListenerPort != 0 {
 			thisReply.TransparentProxy.OutboundListenerPort = serviceConf.TransparentProxy.OutboundListenerPort
 		}

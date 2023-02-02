@@ -363,6 +363,7 @@ type ProxyConfigEntry struct {
 	Name             string
 	Config           map[string]interface{}
 	Mode             ProxyMode              `json:",omitempty"`
+	PermissiveMTLS   bool                   `json:",omitempty" alias:"permissive_mtls"`
 	TransparentProxy TransparentProxyConfig `json:",omitempty" alias:"transparent_proxy"`
 	MeshGateway      MeshGatewayConfig      `json:",omitempty" alias:"mesh_gateway"`
 	Expose           ExposeConfig           `json:",omitempty"`
@@ -1141,6 +1142,7 @@ type ServiceConfigResponse struct {
 	UpstreamIDConfigs OpaqueUpstreamConfigs
 	MeshGateway       MeshGatewayConfig      `json:",omitempty"`
 	Expose            ExposeConfig           `json:",omitempty"`
+	PermissiveMTLS    bool                   `json:",omitempty"`
 	TransparentProxy  TransparentProxyConfig `json:",omitempty"`
 	Mode              ProxyMode              `json:",omitempty"`
 	Destination       DestinationConfig      `json:",omitempty"`

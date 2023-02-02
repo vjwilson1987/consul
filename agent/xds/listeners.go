@@ -1417,7 +1417,58 @@ func (s *ResourceGenerator) makeInboundListener(cfgSnap *proxycfg.ConfigSnapshot
 		return nil, fmt.Errorf("failed to attach Consul filters and TLS context to custom public listener: %v", err)
 	}
 
+	if cfgSnap.Proxy.PermissiveMTLS {
+		for _, chain := range l.FilterChains {
+			if chain.FilterChainMatch == nil {
+				chain.FilterChainMatch = &envoy_listener_v3.FilterChainMatch{}
+			}
+			chain.FilterChainMatch.TransportProtocol = "tls"
+			//chain.FilterChainMatch.ApplicationProtocols = []string{
+			//	"ALPN",
+			//}
+		}
+		chain, err := makePermissiveFilterChain(cfgSnap, filterOpts)
+		if err != nil {
+			return nil, fmt.Errorf("unable to add permissive mtls filters")
+		}
+		l.FilterChains = append(l.FilterChains, chain)
+
+		tlsInspector, err := anypb.New(&envoy_tls_inspector_v3.TlsInspector{})
+		if err != nil {
+			return nil, err
+		}
+
+		l.ListenerFilters = append(l.ListenerFilters, &envoy_listener_v3.ListenerFilter{
+			Name: "tls_inspector",
+			ConfigType: &envoy_listener_v3.ListenerFilter_TypedConfig{
+				TypedConfig: tlsInspector,
+			},
+			//FilterDisabled: &envoy_listener_v3.ListenerFilterChainMatchPredicate{
+			//	Rule: &envoy_listener_v3.ListenerFilterChainMatchPredicate_AnyMatch{
+			//		AnyMatch: true,
+			//	},
+			//},
+		})
+
+	}
+
 	return l, err
+}
+
+func makePermissiveFilterChain(cfgSnap *proxycfg.ConfigSnapshot, opts listenerFilterOpts) (*envoy_listener_v3.FilterChain, error) {
+	// try adding ANYthing to envoy config
+	filter, err := makeHTTPFilter(opts)
+	if err != nil {
+		return nil, err
+	}
+	chain := &envoy_listener_v3.FilterChain{
+		FilterChainMatch: &envoy_listener_v3.FilterChainMatch{
+			TransportProtocol:    "raw_buffer",
+			ApplicationProtocols: []string{},
+		},
+		Filters: []*envoy_listener_v3.Filter{filter},
+	}
+	return chain, nil
 }
 
 // finalizePublicListenerFromConfig is used for best-effort injection of Consul filter-chains onto listeners.

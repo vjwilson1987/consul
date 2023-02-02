@@ -282,6 +282,8 @@ type ConnectProxyConfig struct {
 	// Expose defines whether checks or paths are exposed through the proxy
 	Expose ExposeConfig `json:",omitempty"`
 
+	PermissiveMTLS bool `json:",omitempty" alias:"permissive_mtls"`
+
 	// TransparentProxy defines configuration for when the proxy is in
 	// transparent mode.
 	TransparentProxy TransparentProxyConfig `json:",omitempty" alias:"transparent_proxy"`
@@ -299,6 +301,7 @@ func (t *ConnectProxyConfig) UnmarshalJSON(data []byte) (err error) {
 		LocalServicePortSnake       int                    `json:"local_service_port"`
 		LocalServiceSocketPathSnake string                 `json:"local_service_socket_path"`
 		MeshGatewaySnake            MeshGatewayConfig      `json:"mesh_gateway"`
+		PermissiveMTLSSnake         bool                   `json:"permissive_mtls"`
 		TransparentProxySnake       TransparentProxyConfig `json:"transparent_proxy"`
 		AccessLogsSnake             AccessLogsConfig       `json:"access_logs"`
 		*Alias
@@ -325,6 +328,9 @@ func (t *ConnectProxyConfig) UnmarshalJSON(data []byte) (err error) {
 	}
 	if t.MeshGateway.Mode == "" {
 		t.MeshGateway.Mode = aux.MeshGatewaySnake.Mode
+	}
+	if !t.PermissiveMTLS {
+		t.PermissiveMTLS = aux.PermissiveMTLSSnake
 	}
 	if t.TransparentProxy.OutboundListenerPort == 0 {
 		t.TransparentProxy.OutboundListenerPort = aux.TransparentProxySnake.OutboundListenerPort
@@ -392,6 +398,7 @@ func (c *ConnectProxyConfig) ToAPI() *api.AgentServiceConnectProxyConfig {
 		LocalServicePort:       c.LocalServicePort,
 		LocalServiceSocketPath: c.LocalServiceSocketPath,
 		Mode:                   api.ProxyMode(c.Mode),
+		PermissiveMTLS:         c.PermissiveMTLS,
 		TransparentProxy:       c.TransparentProxy.ToAPI(),
 		Config:                 c.Config,
 		Upstreams:              c.Upstreams.ToAPI(),

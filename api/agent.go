@@ -125,6 +125,7 @@ type AgentServiceConnectProxyConfig struct {
 	LocalServicePort       int                     `json:",omitempty"`
 	LocalServiceSocketPath string                  `json:",omitempty"`
 	Mode                   ProxyMode               `json:",omitempty"`
+	PermissiveMTLS         bool                    `json:",omitempty"`
 	TransparentProxy       *TransparentProxyConfig `json:",omitempty"`
 	Config                 map[string]interface{}  `json:",omitempty" bexpr:"-"`
 	Upstreams              []Upstream              `json:",omitempty"`
