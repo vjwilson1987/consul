@@ -1,7 +1,9 @@
 package ca
 
 import (
+	"encoding/base64"
 	"fmt"
+	"net/url"
 	"os"
 	"strconv"
 	"testing"
@@ -298,6 +300,91 @@ func TestVaultCAProvider_AWSLoginDataGenerator(t *testing.T) {
 				require.True(t, exists, "missing expected key: %s", key)
 				require.NotEmpty(t, val, "expected non-empty value for key: %s", key)
 			}
+		})
+	}
+}
+
+func TestVaultCAProvider_AliCloudAuthClient(t *testing.T) {
+	// required as login parameters, will hang if not set
+	os.Setenv("ALICLOUD_ACCESS_KEY", "test-access-key")
+	os.Setenv("ALICLOUD_SECRET_KEY", "test-secret-key")
+	os.Setenv("ALICLOUD_ACCESS_KEY_STS_TOKEN", "test-access-token")
+	defer func() {
+		os.Unsetenv("ALICLOUD_ACCESS_KEY")
+		os.Unsetenv("ALICLOUD_SECRET_KEY")
+		os.Unsetenv("ALICLOUD_ACCESS_KEY_STS_TOKEN")
+	}()
+	cases := map[string]struct {
+		authMethod *structs.VaultAuthMethod
+		expQry     map[string][]string
+		expErr     error
+	}{
+		"base-case": {
+			authMethod: &structs.VaultAuthMethod{
+				Type: VaultAuthMethodTypeAliCloud,
+				Params: map[string]interface{}{
+					"role":   "test-role",
+					"region": "test-region",
+				},
+			},
+			expQry: map[string][]string{
+				"Action":      {"GetCallerIdentity"},
+				"AccessKeyId": {"test-access-key"},
+				"RegionId":    {"test-region"},
+			},
+		},
+		"no-role": {
+			authMethod: &structs.VaultAuthMethod{
+				Type: VaultAuthMethodTypeAliCloud,
+				Params: map[string]interface{}{
+					"region": "test-region",
+				},
+			},
+			expErr: fmt.Errorf("role is required for AliCloud login"),
+		},
+		"no-region": {
+			authMethod: &structs.VaultAuthMethod{
+				Type: VaultAuthMethodTypeAliCloud,
+				Params: map[string]interface{}{
+					"role": "test-role",
+				},
+			},
+			expErr: fmt.Errorf("region is required for AliCloud login"),
+		},
+	}
+
+	for name, c := range cases {
+		t.Run(name, func(t *testing.T) {
+			auth := NewAliCloudAuthClient(c.authMethod)
+			require.NotNil(t, auth)
+			encodedData, err := auth.LoginDataGen(c.authMethod)
+			if c.expErr != nil {
+				require.Equal(t, err, c.expErr)
+				return
+			}
+			require.NoError(t, err)
+
+			// identity_request_headers (json encoded headers)
+			rawheaders, err := base64.StdEncoding.DecodeString(
+				encodedData["identity_request_headers"].(string))
+			require.NoError(t, err)
+			headers := string(rawheaders)
+			require.Contains(t, headers, "User-Agent")
+			require.Contains(t, headers, "AlibabaCloud")
+			require.Contains(t, headers, "Content-Type")
+			require.Contains(t, headers, "x-acs-action")
+			require.Contains(t, headers, "GetCallerIdentity")
+
+			// identity_request_url (w/ query params)
+			rawurl, err := base64.StdEncoding.DecodeString(
+				encodedData["identity_request_url"].(string))
+			require.NoError(t, err)
+			requrl, err := url.Parse(string(rawurl))
+			require.NoError(t, err)
+
+			queries := requrl.Query()
+			require.Subset(t, queries, c.expQry, "query missing fields")
+			require.Equal(t, requrl.Hostname(), "sts.test-region.aliyuncs.com")
 		})
 	}
 }
