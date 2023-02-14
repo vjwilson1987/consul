@@ -8,7 +8,6 @@ import (
 	"fmt"
 	"io"
 	"net/http"
-	"os"
 	"strings"
 	"sync"
 	"time"
@@ -934,17 +933,7 @@ func configureVaultAuthMethod(authMethod *structs.VaultAuthMethod) (VaultAuthent
 	case VaultAuthMethodTypeGCP:
 		return NewGCPAuthClient(authMethod)
 	case VaultAuthMethodTypeKubernetes:
-		// For the Kubernetes Auth method, we will try to read the JWT token
-		// from the default service account file location if jwt was not provided.
-		if jwt, ok := authMethod.Params["jwt"]; !ok || jwt == "" {
-			serviceAccountToken, err := os.ReadFile(defaultK8SServiceAccountTokenPath)
-			if err != nil {
-				return nil, err
-			}
-
-			authMethod.Params["jwt"] = string(serviceAccountToken)
-		}
-		return NewVaultAPIAuthClient(authMethod, loginPath), nil
+		return NewK8sAuthClient(authMethod)
 	// These auth methods require a username for the login API path.
 	case VaultAuthMethodTypeLDAP, VaultAuthMethodTypeUserpass, VaultAuthMethodTypeOkta, VaultAuthMethodTypeRadius:
 		// Get username from the params.
