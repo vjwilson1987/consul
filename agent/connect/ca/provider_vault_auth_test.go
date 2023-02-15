@@ -363,6 +363,19 @@ func TestVaultCAProvider_AppRoleAuthClient(t *testing.T) {
 			},
 			expErr: fmt.Errorf("missing '%s' value", "role_id_file_path"),
 		},
+		"legacy-direct-values": {
+			authMethod: &structs.VaultAuthMethod{
+				Type: "approle",
+				Params: map[string]any{
+					"role_id":   "test-role",
+					"secret_id": "test-secret",
+				},
+			},
+			expData: map[string]any{
+				"role_id":   "test-role",
+				"secret_id": "test-secret",
+			},
+		},
 	}
 
 	for k, c := range cases {
@@ -374,9 +387,11 @@ func TestVaultCAProvider_AppRoleAuthClient(t *testing.T) {
 				return
 			}
 			require.NoError(t, err)
-			data, err := auth.LoginDataGen(c.authMethod)
-			require.NoError(t, err)
-			require.Equal(t, c.expData, data)
+			if auth.LoginDataGen != nil {
+				data, err := auth.LoginDataGen(c.authMethod)
+				require.NoError(t, err)
+				require.Equal(t, c.expData, data)
+			}
 		})
 	}
 }

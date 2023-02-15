@@ -16,19 +16,28 @@ import (
 //                                    (which we don't need to do)
 
 func NewAppRoleAuthClient(authMethod *structs.VaultAuthMethod) (*VaultAuthClient, error) {
-	// role_id_file_path is required
+	params := authMethod.Params
+	client := NewVaultAPIAuthClient(authMethod, "")
+	// handle legacy case where role_id and secret_id are passed in directly.
+	_, role_id_ok := params["role_id"].(string)
+	_, secret_id_ok := params["secret_id"].(string)
+	if role_id_ok && secret_id_ok {
+		return client, nil
+	}
+
+	// vault-agent auth config, role_id_file_path is required
 	key := "role_id_file_path"
 	if val, ok := authMethod.Params[key].(string); !ok {
 		return nil, fmt.Errorf("missing '%s' value", key)
 	} else if strings.TrimSpace(val) == "" {
 		return nil, fmt.Errorf("'%s' value is empty", key)
 	}
-
-	client := NewVaultAPIAuthClient(authMethod, "")
 	client.LoginDataGen = ArLoginDataGen
+
 	return client, nil
 }
 
+// don't need to check for legacy params as this func isn't used in that case
 func ArLoginDataGen(authMethod *structs.VaultAuthMethod) (map[string]any, error) {
 	params := authMethod.Params
 	// role_id is required
