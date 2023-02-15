@@ -933,6 +933,8 @@ func configureVaultAuthMethod(authMethod *structs.VaultAuthMethod) (VaultAuthent
 		return NewAWSAuthClient(authMethod), nil
 	case VaultAuthMethodTypeGCP:
 		return NewGCPAuthClient(authMethod)
+	case VaultAuthMethodTypeJWT:
+		return NewJwtAuthClient(authMethod)
 	case VaultAuthMethodTypeKubernetes:
 		// For the Kubernetes Auth method, we will try to read the JWT token
 		// from the default service account file location if jwt was not provided.
@@ -971,7 +973,6 @@ func configureVaultAuthMethod(authMethod *structs.VaultAuthMethod) (VaultAuthent
 		VaultAuthMethodTypeAzure,
 		VaultAuthMethodTypeCloudFoundry,
 		VaultAuthMethodTypeGitHub,
-		VaultAuthMethodTypeJWT,
 		VaultAuthMethodTypeKerberos,
 		VaultAuthMethodTypeTLS:
 		return NewVaultAPIAuthClient(authMethod, loginPath), nil
