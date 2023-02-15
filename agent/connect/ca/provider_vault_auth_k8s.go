@@ -24,8 +24,9 @@ func K8sLoginDataGen(authMethod *structs.VaultAuthMethod) (map[string]any, error
 	params := authMethod.Params
 	role := params["role"].(string)
 
-	// token passed directly
-	// refactor this to use the hasJWT function as used in the jwt auth
+	// Note the `jwt` can be passed directly in the authMethod as the it's Params
+	// is a freeform map in the config where they could hardcode it.
+	// See comment on configureVaultAuthMethod (in ./provider_vault.go) for more.
 	if jwt, ok := params["jwt"].(string); ok && strings.TrimSpace(jwt) != "" {
 		return map[string]any{
 			"role": role,

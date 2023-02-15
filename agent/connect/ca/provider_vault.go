@@ -921,6 +921,13 @@ func vaultLogin(client *vaultapi.Client, authMethod *structs.VaultAuthMethod) (*
 	return resp, nil
 }
 
+// Note the authMethod's parameters (Params) is populated from a freeform map
+// in the configuration where they could hardcode values to be passed directly
+// to the `auth/*/login` endpoint. So each auth method's authentication code
+// needs to handle both these cases. The legacy case (which should be
+// deprecated) where the user has hardcoded login values directly (eg. a `jwt`
+// string) and the case where they use  the configuration option used in the
+// vault agent's auth methods.
 func configureVaultAuthMethod(authMethod *structs.VaultAuthMethod) (VaultAuthenticator, error) {
 	if authMethod.MountPath == "" {
 		authMethod.MountPath = authMethod.Type
