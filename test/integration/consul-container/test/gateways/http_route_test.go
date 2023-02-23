@@ -405,12 +405,17 @@ func TestHTTPRouteParentRefChange(t *testing.T) {
 
 		apiEntry := entry.(*api.HTTPRouteConfigEntry)
 		t.Log(entry)
-		// TODO: check if bound only to correct gateway
-		return isBound(apiEntry.Status.Conditions)
+
+		// check if bound only to correct gateway
+		return len(apiEntry.Parents) == 1 &&
+			apiEntry.Parents[0].Name == gatewayOneName &&
+			isBound(apiEntry.Status.Conditions)
 	}, time.Second*10, time.Second*1)
 
-	// fetch gateway listener port
+	// fetch gateway listener ports
 	gatewayOnePort, err := gatewayOneService.GetPort(listenerOnePort)
+	assert.NoError(t, err)
+	gatewayTwoPort, err := gatewayTwoService.GetPort(listenerTwoPort)
 	assert.NoError(t, err)
 
 	// hit service by requesting root path
@@ -418,6 +423,11 @@ func TestHTTPRouteParentRefChange(t *testing.T) {
 	checkRoute(t, address, gatewayOnePort, "", map[string]string{
 		"Host": "test.foo",
 	}, checkOptions{debug: false, statusCode: 200})
+
+	// check that second gateway does not resolve service
+	checkRoute(t, address, gatewayTwoPort, "", map[string]string{
+		"Host": "test.example",
+	}, checkOptions{debug: false, statusCode: 500})
 
 	// swtich route target to second gateway
 	route.Parents = []api.ResourceReference{
@@ -438,13 +448,12 @@ func TestHTTPRouteParentRefChange(t *testing.T) {
 
 		apiEntry := entry.(*api.HTTPRouteConfigEntry)
 		t.Log(entry)
-		// TODO: check if bound only to correct gateway
-		return isBound(apiEntry.Status.Conditions)
-	}, time.Second*10, time.Second*1)
 
-	// fetch gateway listener port
-	gatewayTwoPort, err := gatewayTwoService.GetPort(listenerTwoPort)
-	assert.NoError(t, err)
+		// check if bound only to correct gateway
+		return len(apiEntry.Parents) == 1 &&
+			apiEntry.Parents[0].Name == gatewayTwoName &&
+			isBound(apiEntry.Status.Conditions)
+	}, time.Second*10, time.Second*1)
 
 	// hit service by requesting root path on other gateway with different hostname
 	checkRoute(t, address, gatewayTwoPort, "", map[string]string{
