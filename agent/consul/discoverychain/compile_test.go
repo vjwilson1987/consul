@@ -1499,6 +1499,7 @@ func testcase_DatacenterFailover_WithMeshGateways() compileTestCase {
 		MeshGateway: structs.MeshGatewayConfig{
 			Mode: structs.MeshGatewayModeRemote,
 		},
+		FailoverPolicy: structs.ServiceResolverFailoverPolicy{Mode: "order-by-locality"},
 	})
 
 	entries.AddResolvers(
@@ -1526,6 +1527,7 @@ func testcase_DatacenterFailover_WithMeshGateways() compileTestCase {
 							"main.default.default.dc2",
 							"main.default.default.dc4",
 						},
+						Policy: structs.ServiceResolverFailoverPolicy{Mode: "order-by-locality"},
 					},
 				},
 			},
@@ -1566,6 +1568,7 @@ func testcase_Failover_Targets() compileTestCase {
 		MeshGateway: structs.MeshGatewayConfig{
 			Mode: structs.MeshGatewayModeRemote,
 		},
+		FailoverPolicy: structs.ServiceResolverFailoverPolicy{Mode: "default"},
 	})
 
 	entries.AddResolvers(
@@ -1579,6 +1582,7 @@ func testcase_Failover_Targets() compileTestCase {
 						{Service: "new-main"},
 						{Peer: "cluster-01"},
 					},
+					Policy: structs.ServiceResolverFailoverPolicy{Mode: "order-by-locality"},
 				},
 			},
 		},
@@ -1595,6 +1599,7 @@ func testcase_Failover_Targets() compileTestCase {
 					ConnectTimeout: 5 * time.Second,
 					Target:         "main.default.default.dc1",
 					Failover: &structs.DiscoveryFailover{
+						Policy: structs.ServiceResolverFailoverPolicy{Mode: "order-by-locality"},
 						Targets: []string{
 							"main.default.default.dc3",
 							"new-main.default.default.dc1",

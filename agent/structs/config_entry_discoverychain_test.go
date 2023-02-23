@@ -1417,6 +1417,20 @@ func TestServiceResolverConfigEntry(t *testing.T) {
 			validateErr: `Bad Failover["v1"]: ServiceSubset "gone" is not a valid subset of "test"`,
 		},
 		{
+			name: "failover with invalid policy",
+			entry: &ServiceResolverConfigEntry{
+				Kind: ServiceResolver,
+				Name: "test",
+				Failover: map[string]ServiceResolverFailover{
+					"*": {
+						Service: "test",
+						Policy:  ServiceResolverFailoverPolicy{Mode: "fake"},
+					},
+				},
+			},
+			validateErr: `Bad Failover["*"]: Policy must be one of '', 'default', or 'order-by-locality'`,
+		},
+		{
 			name: "failover to self using valid subset",
 			entry: &ServiceResolverConfigEntry{
 				Kind: ServiceResolver,
@@ -1546,6 +1560,7 @@ func TestServiceResolverConfigEntry(t *testing.T) {
 							{Service: "test-v2", ServiceSubset: "test"},
 							{Datacenter: "dc2"},
 						},
+						Policy: ServiceResolverFailoverPolicy{Mode: "order-by-locality"},
 					},
 				},
 			},

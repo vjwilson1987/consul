@@ -1062,6 +1062,10 @@ func (e *ServiceResolverConfigEntry) Validate() error {
 				return fmt.Errorf(errorPrefix + "one of Service, ServiceSubset, Namespace, Targets, or Datacenters is required")
 			}
 
+			if !f.Policy.isValid() {
+				return fmt.Errorf("Bad Failover[%q]: Policy must be one of '', 'default', or 'order-by-locality'", subset)
+			}
+
 			if f.ServiceSubset != "" {
 				if f.Service == "" || f.Service == e.Name {
 					if !isSubset(f.ServiceSubset) {
@@ -1347,6 +1351,15 @@ type ServiceResolverFailover struct {
 	//
 	// This is a DESTINATION during failover.
 	Targets []ServiceResolverFailoverTarget `json:",omitempty"`
+
+	// Policy specifies the exact mechanism used for failover.
+	Policy ServiceResolverFailoverPolicy `json:",omitempty"`
+}
+
+type ServiceResolverFailoverPolicy struct {
+	// Mode specifies the type of failover that will be performed. Valid values are
+	// "default", "" (equivalent to "default") and "order-by-locality".
+	Mode string `json:",omitempty"`
 }
 
 func (t *ServiceResolverFailover) ToDiscoveryTargetOpts() DiscoveryTargetOpts {
@@ -1359,6 +1372,18 @@ func (t *ServiceResolverFailover) ToDiscoveryTargetOpts() DiscoveryTargetOpts {
 
 func (f *ServiceResolverFailover) isEmpty() bool {
 	return f.Service == "" && f.ServiceSubset == "" && f.Namespace == "" && len(f.Datacenters) == 0 && len(f.Targets) == 0
+}
+
+func (f *ServiceResolverFailoverPolicy) isValid() bool {
+	switch f.Mode {
+	case "":
+	case "default":
+	case "order-by-locality":
+	default:
+		return false
+	}
+
+	return true
 }
 
 type ServiceResolverFailoverTarget struct {
