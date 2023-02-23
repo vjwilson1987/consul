@@ -427,13 +427,13 @@ func TestHTTPRouteParentRefChange(t *testing.T) {
 	// check that second gateway does not resolve service
 	checkRouteError(t, address, gatewayTwoPort, "", map[string]string{
 		"Host": "test.example",
-	}, "FIXME")
+	}, "EOF")
 
 	// swtich route target to second gateway
 	route.Parents = []api.ResourceReference{
 		{
 			Kind:      api.APIGateway,
-			Name:      gatewayOneName,
+			Name:      gatewayTwoName,
 			Namespace: namespace,
 		},
 	}
@@ -447,7 +447,8 @@ func TestHTTPRouteParentRefChange(t *testing.T) {
 		}
 
 		apiEntry := entry.(*api.HTTPRouteConfigEntry)
-		t.Log(entry)
+		t.Log(apiEntry)
+		t.Log(fmt.Sprintf("%#v", apiEntry))
 
 		// check if bound only to correct gateway
 		return len(apiEntry.Parents) == 1 &&
@@ -463,5 +464,5 @@ func TestHTTPRouteParentRefChange(t *testing.T) {
 	// check that first gateway has stopped resolving service
 	checkRouteError(t, address, gatewayOnePort, "", map[string]string{
 		"Host": "test.foo",
-	}, "FIXME")
+	}, "EOF")
 }
