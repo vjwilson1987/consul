@@ -150,6 +150,47 @@ func createCluster(t *testing.T, ports ...int) *libcluster.Cluster {
 	return cluster
 }
 
+func createGateway(gatewayName string, protocol string, listenerPort int) *api.APIGatewayConfigEntry {
+	return &api.APIGatewayConfigEntry{
+		Kind: "api-gateway",
+		Name: gatewayName,
+		Listeners: []api.APIGatewayListener{
+			{
+				Name:     "listener",
+				Port:     listenerPort,
+				Protocol: protocol,
+			},
+		},
+	}
+}
+
+func checkGatewayConfigEntry(t *testing.T, client *api.Client, gatewayName string, namespace string) {
+	require.Eventually(t, func() bool {
+		entry, _, err := client.ConfigEntries().Get(api.APIGateway, gatewayName, &api.QueryOptions{Namespace: namespace})
+		assert.NoError(t, err)
+		if entry == nil {
+			return false
+		}
+		apiEntry := entry.(*api.APIGatewayConfigEntry)
+		t.Log(entry)
+		return isAccepted(apiEntry.Status.Conditions)
+	}, time.Second*10, time.Second*1)
+}
+
+func checkHTTPRouteConfigEntry(t *testing.T, client *api.Client, routeName string, namespace string) {
+	require.Eventually(t, func() bool {
+		entry, _, err := client.ConfigEntries().Get(api.HTTPRoute, routeName, &api.QueryOptions{Namespace: namespace})
+		assert.NoError(t, err)
+		if entry == nil {
+			return false
+		}
+
+		apiEntry := entry.(*api.HTTPRouteConfigEntry)
+		t.Log(entry)
+		return isBound(apiEntry.Status.Conditions)
+	}, time.Second*10, time.Second*1)
+}
+
 func createService(t *testing.T, cluster *libcluster.Cluster, serviceOpts *libservice.ServiceOpts, containerArgs []string) libservice.Service {
 	node := cluster.Agents[0]
 	client := node.GetClient()
@@ -191,7 +232,10 @@ type checkOptions struct {
 	testName   string
 }
 
-func checkRoute(t *testing.T, ip string, port int, path string, headers map[string]string, expected checkOptions) {
+func checkRoute(t *testing.T, ip string, port int, route string, headers map[string]string, expected checkOptions) {
+	if expected.testName != "" {
+		t.Log("running " + expected.testName)
+	}
 	const phrase = "hello"
 
 	failer := func() *retry.Timer {
@@ -201,8 +245,11 @@ func checkRoute(t *testing.T, ip string, port int, path string, headers map[stri
 	client := cleanhttp.DefaultClient()
 	url := fmt.Sprintf("http://%s:%d", ip, port)
 
-	if path != "" {
-		url += "/" + path
+	if route != "" {
+		if route[0] != '/' {
+			url += "/"
+		}
+		url += route
 	}
 
 	retry.RunWith(failer(), t, func(r *retry.R) {
