@@ -37,8 +37,6 @@ func TestHTTPRouteFlattening(t *testing.T) {
 		t.Skip("too slow for testing.Short")
 	}
 
-	//TODO currently this test cannot run in paralel because services spinning up
-	//at the same time causes the tests to error.
 	t.Parallel()
 
 	//infrastructure set up
@@ -261,7 +259,7 @@ func TestHTTPRoutePathRewrite(t *testing.T) {
 	validService := createService(t, cluster, &libservice.ServiceOpts{
 		Name: "valid",
 		ID:   "valid",
-		//TODO we get conflicts if these ports are the same and the tests are running in parralel
+		//TODO we can potentially get conflicts if these ports are the same and the tests are running in parralel
 		//need to poll for available ports to avoid conflicts
 		HTTPPort: 8079,
 		GRPCPort: 8078,
